@@ -7,8 +7,6 @@ SELECT
     COUNT(CASE WHEN t2.descMedal = 'Membro Plus' THEN t1.idMedal END) AS qtPlus,
     COUNT(CASE WHEN t2.descMedal = 'Membro Premium' THEN t1.idMedal END) AS qtPremium,
     max(CASE WHEN t2.descMedal in ('Membro Plus', 'Membro Premium' AND COALESCE(t1.dtRemove, date ('now') > '2022-01-01')) THEN 1 ELSE 0 END) AS flAssinante
-
-
 FROM
     tb_players_medalha AS t1
     LEFT JOIN tb_medalha AS t2 ON t1.idMedal = t2.idMedal
