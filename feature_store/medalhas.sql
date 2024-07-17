@@ -1,4 +1,5 @@
 SELECT
+    '2022-01-01' AS dtRef,
     t1.idPlayer,
     COUNT(DISTINCT t1.idMedal) AS qtMedalhasDist,
     COUNT(t1.idMedal) as qtMedalhas,
