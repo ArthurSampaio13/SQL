@@ -5,8 +5,8 @@ WITH tb_level AS (
     FROM 
         tb_lobby_stats_player
     WHERE
-        dtCreatedAt < '2022-01-01'
-        AND dtCreatedAt >= DATE ('2022-01-01', '-1 month')
+        dtCreatedAt < '{date}'
+        AND dtCreatedAt >= DATE ('{date}', '-1 month')
     ORDER BY
         idPlayer, 
         dtCreatedAt
@@ -27,7 +27,7 @@ SELECT
     idPlayer,
     COUNT(DISTINCT idLobbyGame) AS qtPartidas,
     COUNT(DISTINCT date (dtCreatedAt)) AS qtDias,
-    1.0 * min(JULIANDAY('2022-01-01') - JULIANDAY(dtCreatedAt)) AS qtRecencia,
+    1.0 * min(JULIANDAY('{date}') - JULIANDAY(dtCreatedAt)) AS qtRecencia,
     1.0 * COUNT(DISTINCT CASE WHEN CAST(STRFTIME('%w', dtCreatedAt) AS INTEGER) = 0 THEN DATE(dtCreatedAt) END) / COUNT(DISTINCT date (dtCreatedAt)) AS qtDia00,
     1.0 * COUNT(DISTINCT CASE WHEN CAST(STRFTIME('%w', dtCreatedAt) AS INTEGER) = 1 THEN DATE(dtCreatedAt) END) / COUNT(DISTINCT date (dtCreatedAt)) AS qtDia01,
     1.0 * COUNT(DISTINCT CASE WHEN CAST(STRFTIME('%w', dtCreatedAt) AS INTEGER) = 2 THEN DATE(dtCreatedAt) END) / COUNT(DISTINCT date (dtCreatedAt)) AS qtDia02,
@@ -83,14 +83,14 @@ SELECT
 FROM
     tb_lobby_stats_player
 WHERE
-    dtCreatedAt < '2022-01-01'
-    AND dtCreatedAt >= DATE ('2022-01-01', '-1 month')
+    dtCreatedAt < '{date}'
+    AND dtCreatedAt >= DATE ('{date}', '-1 month')
 GROUP BY
     idPlayer
 )
-
+INSERT INTO fs_gameplay
 SELECT 
-       '2022-01-01' AS dtRef,
+       '{date}' AS dtRef,
        t1.*,
        t2.vlLevel
 FROM 

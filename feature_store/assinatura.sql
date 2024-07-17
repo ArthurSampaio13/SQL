@@ -54,7 +54,7 @@ tb_assinatura_historica AS (
         t1.idPlayer
 
 )
-
+INSERT INTO fs_assinatura 
 SELECT 
     '{date}' as dtRef,      
     t1.idPlayer,

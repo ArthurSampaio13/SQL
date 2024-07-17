@@ -1,5 +1,6 @@
+INSERT INTO fs_medalhas
 SELECT
-    '2022-01-01' AS dtRef,
+    '{date}' AS dtRef,
     t1.idPlayer,
     COUNT(DISTINCT t1.idMedal) AS qtMedalhasDist,
     COUNT(t1.idMedal) as qtMedalhas,
@@ -10,8 +11,8 @@ FROM
 WHERE
     t1.dtCreatedAt < t1.dtExpiration
     AND t1.dtCreatedAt < COALESCE(t1.dtRemove, date ('now'))
-    AND t1.dtCreatedAt < '2022-01-01'
-    AND COALESCE(t1.dtRemove, DATE('now')) > '2022-01-01'
+    AND t1.dtCreatedAt < '{date}'
+    AND COALESCE(t1.dtRemove, DATE('now')) > '{date}'
     AND t2.descMedal in ('Membro Plus', 'Membro Premium')
 GROUP BY
     t1.idPlayer
