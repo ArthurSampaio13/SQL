@@ -43,8 +43,8 @@ def import_query(path):
 # %%
 engine = sqlalchemy.create_engine("sqlite:///../data/gc (1).db")
 
-dt_start = '2021-12-01'
-dt_stop = '2021-12-15'
+dt_start = '2021-11-01'
+dt_stop = '2022-02-01'
 
 paths = ['assinatura.sql', 'gameplay.sql', 'medalhas.sql']
 holders = ['assinatura', 'gameplay', 'medalhas']
