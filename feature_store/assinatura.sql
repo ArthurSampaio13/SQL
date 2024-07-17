@@ -8,8 +8,8 @@ WITH tb_assinatura AS (
     WHERE
         t1.dtCreatedAt < t1.dtExpiration
         AND t1.dtCreatedAt < COALESCE(t1.dtRemove, t1.dtExpiration, date ('now'))
-        AND t1.dtCreatedAt < '2022-01-01'
-        AND COALESCE(t1.dtRemove, t1.dtExpiration, DATE('now')) > '2022-01-01'
+        AND t1.dtCreatedAt < {date}
+        AND COALESCE(t1.dtRemove, t1.dtExpiration, DATE('now')) > {date}
         AND t2.descMedal in ('Membro Plus', 'Membro Premium')  
     ORDER BY
         t1.idPlayer
@@ -26,8 +26,8 @@ tb_assinatura_rn AS (
 tb_assinatura_sumario AS (
     SELECT 
         *,
-        (JULIANDAY('2022-01-01') - JULIANDAY(dtCreatedAt)) AS qtDiasAssinatura,
-        (JULIANDAY(dtExpiration) - JULIANDAY('2022-01-01')) AS qtDiasExpiracaoAssinatura
+        (JULIANDAY({date}) - JULIANDAY(dtCreatedAt)) AS qtDiasAssinatura,
+        (JULIANDAY(dtExpiration) - JULIANDAY({date})) AS qtDiasExpiracaoAssinatura
     FROM 
         tb_assinatura_rn
     WHERE 
@@ -48,7 +48,7 @@ tb_assinatura_historica AS (
     WHERE
         t1.dtCreatedAt < t1.dtExpiration
         AND t1.dtCreatedAt < COALESCE(t1.dtRemove, date ('now'))
-        AND t1.dtCreatedAt < '2022-01-01'
+        AND t1.dtCreatedAt < {date}
         AND t2.descMedal in ('Membro Plus', 'Membro Premium')
     GROUP BY
         t1.idPlayer
@@ -56,7 +56,7 @@ tb_assinatura_historica AS (
 )
 
 SELECT 
-    '2022-01-01' as dtRef,      
+    {date} as dtRef,      
     t1.idPlayer,
     t1.descMedal,
     1 AS flAssinatura,
