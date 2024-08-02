@@ -1,16 +1,14 @@
-# %%
 import pandas as pd
 import sqlite3
 import datetime
 from tqdm import tqdm
 import sqlalchemy
-# %%
-def table_exits(table):
-    conn = sqlite3.connect("../data/gc (1).db")
-    query = "SELECT name FROM sqlite_master WHERE type='table' AND name=?;"
-    df = pd.read_sql(query, conn, params=(table,))
-    conn.close()    
 
+# %%
+def table_exists(engine, table):
+    with engine.connect() as connection:
+        query = "SELECT name FROM sqlite_master WHERE type='table' AND name=:table;"
+        df = pd.read_sql(query, connection, params={"table": table})
     return not df.empty
 
 def dates_to_list(dt_start, dt_stop):
@@ -22,12 +20,12 @@ def dates_to_list(dt_start, dt_stop):
 
 def process_date(query, date, engine, holder, table):
     with engine.connect() as connection:
-        if table_exits(table):
-            delete = sqlalchemy.text(f"DELETE FROM {holder} WHERE dtRef = {date}")
+        if table_exists(engine, table):
+            delete = sqlalchemy.text(f"DELETE FROM {holder} WHERE dtRef = :date")
             connection.execute(delete, {"date": date})
         
-        query = query.format(date=date)
-        connection.execute(sqlalchemy.text(query))
+        formatted_query = query.format(date=date)
+        connection.execute(sqlalchemy.text(formatted_query))
 
 def backfill(query, engine, dt_start, dt_stop, holder, table):
     dates = dates_to_list(dt_start, dt_stop)
@@ -39,12 +37,11 @@ def import_query(path):
         query = open_file.read()
     return query
 
-
 # %%
 engine = sqlalchemy.create_engine("sqlite:///../data/gc (1).db")
 
 dt_start = '2021-11-01'
-dt_stop = '2022-02-01'
+dt_stop = '2022-02-10'
 
 paths = ['assinatura.sql', 'gameplay.sql', 'medalhas.sql']
 holders = ['assinatura', 'gameplay', 'medalhas']
@@ -52,4 +49,3 @@ holders = ['assinatura', 'gameplay', 'medalhas']
 for path, holder in zip(paths, holders):
     query = import_query(path)
     backfill(query, engine, dt_start, dt_stop, holder, holder)
-# %%
