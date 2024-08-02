@@ -1,3 +1,4 @@
+CREATE TABLE ABT AS 
 WITH tb_features AS (
 SELECT
     t1.*,
