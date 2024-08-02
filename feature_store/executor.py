@@ -44,7 +44,7 @@ dt_start = '2021-11-01'
 dt_stop = '2022-02-10'
 
 paths = ['assinatura.sql', 'gameplay.sql', 'medalha.sql']
-holders = ['assinatura', 'gameplay', 'medalhas']
+holders = ['assinatura', 'gameplay', 'medalha']
 
 for path, holder in zip(paths, holders):
     query = import_query(path)
