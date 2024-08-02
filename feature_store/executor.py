@@ -43,7 +43,7 @@ engine = sqlalchemy.create_engine("sqlite:///../data/gc (1).db")
 dt_start = '2021-11-01'
 dt_stop = '2022-02-10'
 
-paths = ['assinatura.sql', 'gameplay.sql', 'medalhas.sql']
+paths = ['assinatura.sql', 'gameplay.sql', 'medalha.sql']
 holders = ['assinatura', 'gameplay', 'medalhas']
 
 for path, holder in zip(paths, holders):
