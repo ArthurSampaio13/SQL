@@ -127,7 +127,18 @@ model_pipeline = pipeline.Pipeline([("Missing Flag", fe_missing_flag),
                                     ("OneHot", fe_onehot),
                                     ("Model", model)])
 
-model_pipeline.fit(X_train, y_train)
+params = {
+    "Model__min_samples_leaf" : [10,25,50],
+    "Model__n_estimators" : [50,100,250,500]
+    }
+
+grid_model = model_selection.GridSearchCV(model_pipeline, 
+                                          params, 
+                                          n_jobs=-1,
+                                          scoring='roc_auc',
+                                          cv=3)
+
+grid_model.fit(X_train, y_train)
 # %%
 y_train_predict = model_pipeline.predict(X_train)
 acc_train = metrics.accuracy_score(y_train, y_train_predict)
@@ -140,6 +151,7 @@ y_probas = model_pipeline.predict_proba(X_test)
 
 acc_test = metrics.accuracy_score(y_test, y_test_predict)
 acc_test
+
 # %%
 features_fit = model_pipeline[:-1].transform(X_train).columns.tolist()
 
@@ -150,4 +162,16 @@ features_importance.sort_values(ascending=False).head(15)
 skplt.metrics.plot_roc(y_test, y_probas)
 # %%
 skplt.metrics.plot_ks_statistic(y_test, y_probas)
+# %%
+
+y_oot_predict = model_pipeline.predict(dt_oot[features])
+
+y_probas_oot = model_pipeline.predict_proba(dt_oot[features])
+
+acc_oot = metrics.accuracy_score(dt_oot[target], y_oot_predict)
+acc_oot
+# %%
+skplt.metrics.plot_roc(dt_oot[target], y_probas_oot)
+# %%
+skplt.metrics.plot_ks_statistic(dt_oot[target], y_probas_oot)
 # %%
