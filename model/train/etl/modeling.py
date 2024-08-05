@@ -11,6 +11,8 @@ from feature_engine import imputation, encoding
 
 import matplotlib.pyplot as plt
 import scikitplot as skplt
+
+import mlflow
 # %%
 engine = sqlalchemy.create_engine("sqlite:///../../../data/gc (1).db")
 conn = sqlite3.connect("../../../data/gc (1).db")
@@ -105,7 +107,6 @@ missing_zero = [
 ]
 
 cat_features = X_train.dtypes[X_train.dtypes == 'object'].index.tolist()
-cat_features
 # %%
 
 # MODIFY
@@ -118,36 +119,47 @@ fe_missing_zero = imputation.ArbitraryNumberImputer(variables= missing_zero,
                                                     arbitrary_number = 0)
 # %%
 # MODELING
-model = ensemble.RandomForestClassifier(random_state=42)
-
-params = {
-    "min_samples_leaf" : [10,25,50],
-    "n_estimators" : [50,100,250,500]
-    }
-
-grid_model = model_selection.GridSearchCV(model, 
-                                          params, 
-                                          n_jobs=-1,
-                                          scoring='roc_auc',
-                                          cv=3,
-                                          verbose=3)
+model = ensemble.RandomForestClassifier(random_state=42, 
+                                        min_samples_leaf=10, 
+                                        n_estimators=500)
 # %%
 model_pipeline = pipeline.Pipeline([("Missing Flag", fe_missing_flag), 
                                     ("Missing Zero", fe_missing_zero),
                                     ("OneHot", fe_onehot),
-                                    ("Classificador-T", grid_model)])
+                                    ("Classificador", model)])
 
-grid_model.fit(X_train, y_train)
-
-# %%
-pd.DataFrame(grid_model.cv_results_)
-# %%
-y_train_predict = grid_model.predict(X_train)
-acc_train = metrics.accuracy_score(y_train, y_train_predict)
-acc_train
+mlflow.set_tracking_uri("http://localhost:5000/")
+mlflow.set_experiment('churn')
 
 # %%
-y_test_predict = grid_model.predict(X_test)
+with mlflow.start_run():
+    metrics_dct = {}
+    
+    mlflow.sklearn.autolog()
+    
+    print("Treinando o modelo...")
+    model_pipeline.fit(X_train, y_train)
+    print("Modelo treinado!")
+
+    y_train_predict = model_pipeline.predict(X_train)
+    metrics_dct['acc_train'] = metrics.accuracy_score(y_train, y_train_predict)
+    y_train_proba = model_pipeline.predict_proba(X_train)
+    metrics_dct['auc_train'] = metrics.roc_auc_score(y_train, y_train_proba[:,1])
+
+    y_test_predict = model_pipeline.predict(X_test)
+    metrics_dct['acc_test'] = metrics.accuracy_score(y_test, y_test_predict)
+    y_test_proba = model_pipeline.predict_proba(X_test)
+    metrics_dct['auc_test'] = metrics.roc_auc_score(y_test, y_test_proba[:,1])
+
+    y_oot_predict = model_pipeline.predict(dt_oot[features])
+    metrics_dct['acc_oot'] = metrics.accuracy_score(dt_oot[target], y_oot_predict)
+    y_probas_oot = model_pipeline.predict_proba(dt_oot[features])
+    metrics_dct['auc_oot'] = metrics.roc_auc_score(dt_oot[target], y_probas_oot[:,1])
+    
+    mlflow.log_metrics(metrics_dct)
+
+# %%
+y_test_predict = model.predict(X_test)
 
 y_probas = model_pipeline.predict_proba(X_test)
 
@@ -166,7 +178,7 @@ skplt.metrics.plot_roc(y_test, y_probas)
 skplt.metrics.plot_ks_statistic(y_test, y_probas)
 # %%
 
-y_oot_predict = grid_model.predict(dt_oot[features])
+y_oot_predict = model.predict(dt_oot[features])
 
 y_probas_oot = model_pipeline.predict_proba(dt_oot[features])
 
