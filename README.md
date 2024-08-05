@@ -39,7 +39,7 @@ MLflow é uma plataforma para gerenciar o ciclo de vida do aprendizado de máqui
 
 O processo de ETL (Extract, Transform, Load) completo foi realizado para garantir a preparação adequada dos dados. As etapas incluem:
 
-1. **Extração:** Extração dos dados do banco de dados da Olist.
+1. **Extração:** Extração dos dados do banco de dados da GC.
 2. **Transformação:** Criação de aproximadamente 60 features (variáveis) para alimentar o modelo preditivo. Estas features são calculadas a partir dos dados brutos extraídos.
 3. **Carregamento:** Transformação dos dados com o modelo treinado e armazenamento dos scores de chance de ativação, churn, atraso no pedido e clusters no banco de dados.
 
